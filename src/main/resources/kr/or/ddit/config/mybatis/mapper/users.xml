@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="users">
+	<!-- select 된 컬럼과 resultType에 기술된 클래스의 필드 이름이 동일하면 자동으로 값을 넣어준다 resultType 
+		: 한 행의 정보를 저장할 수 있는 클래스 타입을 명시 -->
+
+<!-- select 된 컬럼과 resultType에 기술된 클래스의 필드 이름이 동일하면 자동으로 값을 넣어준다 resultType 
+		: 한 행의 정보를 저장할 수 있는 클래스 타입을 명시 -->
+	<select id="selectAllUser" resultType="userVo">
+		SELECT *
+		FROM users
+		order by reg_dt desc
+	</select>
+	<select id="selectUser" resultType="userVo"
+		parameterType="userVo">
+		SELECT *
+		FROM users
+		WHERE userid = #{userid}
+	</select>
+	<select id="loginUser" resultType="userVo"
+		parameterType="userVo">
+		SELECT *
+		FROM users
+		WHERE userid = #{userid}
+		AND pass = #{pass}
+	</select>
+	<select id="selectPagingUser" resultType="userVo"
+		parameterType="pageVo">
+		SELECT *
+		FROM
+		(SELECT ROWNUM rn, a.*
+		FROM
+		(SELECT *
+		FROM
+		USERS
+		ORDER BY reg_dt desc)a
+		WHERE ROWNUM &lt;= #{page} * #{pageSize})
+		WHERE
+		rn BETWEEN (#{page}-1) * #{pageSize}+1 AND #{page} * #{pageSize}
+	</select>
+
+	<!-- 전체 사용자 수 조회 -->
+	<select id="selectAllUserCnt" resultType="int">
+		SELECT COUNT(*)
+		FROM
+		users
+	</select>
+
+	<!-- 사용자 정보 등록 -->
+	<insert id="registerUser" parameterType="userVo">
+		INSERT INTO users
+		(userid, usernm, pass, reg_dt, alias, addr1, addr2, zipcode, filename,
+		realfilename)
+		VALUES (#{userid}, #{usernm}, #{pass}, #{reg_dt},
+		#{alias}, #{addr1}, #{addr2}, #{zipcode}, #{filename},
+		#{realfilename})
+	</insert>
+
+	<!-- 사용자 정보 수정 -->
+	<update id="modifyUser" parameterType="userVo">
+		UPDATE users SET 
+		usernm = #{usernm},
+		pass = #{pass},
+		reg_dt = #{reg_dt},
+		alias = #{alias},
+		addr1 = #{addr1},
+		addr2 = #{addr2},
+		zipcode = #{zipcode},
+		filename = #{filename},
+		realfilename = #{realfilename}
+		WHERE userid = #{userid}
+	</update>
+
+	<!-- 사용자 삭제 -->
+	<delete id="deleteUser" parameterType="String">
+		DELETE users WHERE
+		userid = #{value}
+	</delete>
+
+	<!-- 사용자 검색 -->
+<!-- 	<select id="searchUser" resultType="userVo" parameterType="psVo"> -->
+<!-- 		SELECT * -->
+<!-- 		FROM users -->
+<!-- 		<choose> -->
+<!-- 			<when test="userid != null" > -->
+<!-- 				WHERE userid LIKE '%'||#{userid}||'%' -->
+<!-- 			</when> -->
+<!-- 			<when test="alias != null"> -->
+<!-- 				WHERE alias LIKE '%'||#{alias}||'%' -->
+<!-- 			</when> -->
+<!-- 			<when test="usernm !=null"> -->
+<!-- 				WHERE usernm LIKE '%'||#{usernm}||'%' -->
+<!-- 			</when> -->
+<!-- 		</choose> -->
+<!-- 	</select> -->
+	
+	<!-- 사용자 검색 갯수 -->
+<!-- 	<select id="serchCount" resultType="int" parameterType="psVo"> -->
+<!-- 		SELECT count(*) -->
+<!-- 		FROM users -->
+<!-- 		<choose> -->
+<!-- 			<when test="userid != null "> -->
+<!-- 				WHERE userid LIKE '%'||#{userid }||'%' -->
+<!-- 			</when> -->
+<!-- 			<when test="alias != null"> -->
+<!-- 				WHERE alias LIKE '%'||#{alias}||'%' -->
+<!-- 			</when> -->
+<!-- 			<when test="usernm !=null"> -->
+<!-- 				WHERE usernm LIKE '%'||#{usernm}||'%' -->
+<!-- 			</when> -->
+<!-- 		</choose> -->
+<!-- 	</select> -->
+	
+<!-- 	<select id="searcPagingUser" resultType="userVo" -->
+<!-- 		parameterType="psVo"> -->
+<!-- 		SELECT * -->
+<!-- 		FROM -->
+<!-- 		(SELECT ROWNUM rn, a.* -->
+<!-- 		FROM -->
+<!-- 		(SELECT * -->
+<!-- 		FROM -->
+<!-- 		USERS -->
+<!-- 		<choose> -->
+<!-- 			<when test="userid != null" > -->
+<!-- 				WHERE userid LIKE '%'||#{userid}||'%' -->
+<!-- 			</when> -->
+<!-- 			<when test="alias != null"> -->
+<!-- 				WHERE alias LIKE '%'||#{alias}||'%' -->
+<!-- 			</when> -->
+<!-- 			<when test="usernm !=null"> -->
+<!-- 				WHERE usernm LIKE '%'||#{usernm}||'%' -->
+<!-- 			</when> -->
+<!-- 		</choose> -->
+<!-- 		ORDER BY userid)a -->
+<!-- 		WHERE ROWNUM &lt;= #{page} * #{pageSize}) -->
+<!-- 		WHERE -->
+<!-- 		rn BETWEEN (#{page}-1) * #{pageSize}+1 AND #{page} * #{pageSize} -->
+<!-- 	</select> -->
+	
+	 <select id="searchIdPagingUser" resultType="userVo" parameterType="psVo">
+  	SELECT *
+	FROM
+	    (SELECT ROWNUM rn, a.*
+	     FROM
+	         (SELECT *
+	          FROM users
+	          WHERE userid LIKE '%' || #{keyword} || '%'
+	          ORDER BY userid
+	          ) a
+	     WHERE ROWNUM &lt;= #{page} * #{pageSize}
+	     )
+	WHERE rn BETWEEN (#{page}-1) * #{pageSize} +1 AND #{page} * #{pageSize}
+  
+  </select>
+  
+  <select id="searchIdUserCount" resultType="int" parameterType="psVo">
+  	SELECT COUNT(*)
+  	FROM users
+  	WHERE userid LIKE '%' || #{keyword} || '%'
+  </select>  
+  
+  
+   <select id="searchNamePagingUser" resultType="userVo" parameterType="psVo">
+  	SELECT *
+	FROM
+	    (SELECT ROWNUM rn, a.*
+	     FROM
+	         (SELECT *
+	          FROM users
+	          WHERE usernm LIKE '%' || #{keyword} || '%'
+	          ORDER BY userid
+	          ) a
+	     WHERE ROWNUM &lt;= #{page} * #{pageSize}
+	     )
+	WHERE rn BETWEEN (#{page}-1) * #{pageSize} +1 AND #{page} * #{pageSize}
+  
+  </select>
+  
+  <select id="searchNameUserCount" resultType="int" parameterType="psVo">
+  	SELECT COUNT(*)
+  	FROM users
+  	WHERE usernm LIKE '%' || #{keyword} || '%'
+  </select> 
+  
+  
+  <select id="searchAliasPagingUser" resultType="userVo" parameterType="psVo">
+  	SELECT *
+	FROM
+	    (SELECT ROWNUM rn, a.*
+	     FROM
+	         (SELECT *
+	          FROM users
+	          WHERE alias LIKE '%' || #{keyword} || '%'
+	          ORDER BY userid
+	          ) a
+	     WHERE ROWNUM &lt;= #{page} * #{pageSize}
+	     )
+	WHERE rn BETWEEN (#{page}-1) * #{pageSize} +1 AND #{page} * #{pageSize}
+  
+  </select>
+  
+  <select id="searchAliasUserCount" resultType="int" parameterType="psVo">
+  	SELECT COUNT(*)
+  	FROM users
+  	WHERE alias LIKE '%' || #{keyword} || '%'
+  </select> 
+	
+</mapper>
